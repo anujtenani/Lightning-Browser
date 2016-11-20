@@ -18,12 +18,14 @@ import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.CookieManager;
+import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 
 import com.squareup.otto.Bus;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import acr.browser.lightning.BuildConfig;
 import acr.browser.lightning.R;
@@ -141,7 +143,6 @@ public class DownloadHandler {
                                                 String contentDisposition, @Nullable String mimetype) {
         final Bus eventBus = BrowserApp.getBus(context);
         final String filename = URLUtil.guessFileName(url, contentDisposition, mimetype);
-
         // Check to see if we have an SDCard
         String status = Environment.getExternalStorageState();
         if (!status.equals(Environment.MEDIA_MOUNTED)) {
@@ -190,8 +191,24 @@ public class DownloadHandler {
         // set downloaded file destination to /sdcard/Download.
         // or, should it be set to one of several Environment.DIRECTORY* dirs
         // depending on mimetype?
-
-        String location = preferences.getDownloadDirectory();
+        String location = preferences.getDownloadDirectory()+"/Documents/Downloads/";
+        //get extension
+        try {
+            int index = filename.indexOf(".");
+            String extension = filename.substring(index + 1).toLowerCase();
+            String[] video_exts = {"mp4", "avi", "webm", "m4v", "mkv", "3gp", "3gpp", "flv", "qt", "mov", "wmv", "mpg"};
+            String[] image_exts = {"jpg", "jpeg", "png", "bmp", "gif", "webp"};
+            String[] audio_exts = {"mp3", "flac", "wav", "wma", "ogg", "aac"};
+            if (Arrays.asList(image_exts).contains(extension)) {
+                location = preferences.getDownloadDirectory() + "/Pictures/Downloads/";
+            }else if (Arrays.asList(video_exts).contains(extension)) {
+                location = preferences.getDownloadDirectory() + "/Videos/Downloads/";
+            } else if (Arrays.asList(audio_exts).contains(extension)) {
+                location = preferences.getDownloadDirectory() + "/Audio/Downloads/";
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         Uri downloadFolder;
         location = addNecessarySlashes(location);
         downloadFolder = Uri.parse(location);
@@ -207,11 +224,14 @@ public class DownloadHandler {
             eventBus.post(new BrowserEvents.ShowSnackBarMessage(R.string.problem_location_download));
             return;
         }
+
         request.setDestinationUri(Uri.parse(Constants.FILE + location + filename));
         // let this downloaded file be scanned by MediaScanner - so that it can
         // show up in Gallery app, for example.
-        request.setVisibleInDownloadsUi(true);
-        request.allowScanningByMediaScanner();
+
+        request.setVisibleInDownloadsUi(false);
+//        request.allowScanningByMediaScanner();
+
         request.setDescription(webAddress.getHost());
         // XXX: Have to use the old url since the cookies were stored using the
         // old percent-encoded url.

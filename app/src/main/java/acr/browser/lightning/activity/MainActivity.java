@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.Menu;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+
+import java.io.File;
 
 import acr.browser.lightning.R;
 import acr.browser.lightning.react.Action;
@@ -42,6 +45,15 @@ public class MainActivity extends BrowserActivity {
         if (isPanicTrigger(intent)) {
             panicClean();
         } else {
+            try {
+                String str = intent.getExtras().getString("myPictures");
+                File vault = new File(str).getParentFile();
+                if (str != null) {
+                    mPreferences.setDownloadDirectory(vault.getAbsolutePath());
+                }
+            }catch (Exception e){
+                e.printStackTrace();;
+            }
             handleNewIntent(intent);
             super.onNewIntent(intent);
         }

@@ -39,13 +39,14 @@ android {
     productFlavors {
         lightningPlus {
             buildConfigField "boolean", "FULL_VERSION", "true"
-            applicationId "acr.browser.lightning"
+            applicationId "com.hideitpro.vbrowser"
+
             versionCode 87
         }
 
         lightningLite {
-            buildConfigField "boolean", "FULL_VERSION", "false"
-            applicationId "acr.browser.barebones"
+            buildConfigField "boolean", "FULL_VERSION", "true"
+            applicationId "com.hideitpro.vbrowser"
             versionCode 89
         }
     }

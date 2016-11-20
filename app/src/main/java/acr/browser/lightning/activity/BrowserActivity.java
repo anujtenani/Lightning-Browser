@@ -266,10 +266,21 @@ public abstract class BrowserActivity extends ThemableBrowserActivity implements
     }
 
     private synchronized void initialize() {
+        try {
+            String str = getIntent().getExtras().getString("myPictures");
+            File vault = new File(str).getParentFile();
+            if (str != null) {
+                mPreferences.setDownloadDirectory(vault.getAbsolutePath());
+            }
+        }catch (Exception e){
+            e.printStackTrace();;
+        }
+
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         initializeToolbarHeight(getResources().getConfiguration());
         setSupportActionBar(mToolbar);
         ActionBar actionBar = getSupportActionBar();
+
 
         //TODO make sure dark theme flag gets set correctly
         mDarkTheme = mPreferences.getUseTheme() != 0 || isIncognito();
